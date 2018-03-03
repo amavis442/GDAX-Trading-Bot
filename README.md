@@ -33,11 +33,16 @@ Generate an API Key only with trade permission (https://www.gdax.com/settings/ap
 
 ### Environment variables
 
-Save the three values of the API key in the following environment variables of the operating system:
+Copy .env.example to .env and fill in the credentials from coinbase
 
 - TRADING_BOT_PASSPHRASE
 - TRADING_BOT_KEY
 - TRADING_BOT_SECRET
+- LIMIT_BUY
+- EURO_IN_ACCOUNT_MINIMUM
+
+You can also set the toplimit to buy when you are not feeling so adventurious and the amount of euro's that has to stay
+in your account. This should be amount + price 0.001 BTC euro = 50 + 8.80 when BTC is 8.80 euro.
 
 ### Installation
 

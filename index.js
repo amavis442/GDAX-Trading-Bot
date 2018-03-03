@@ -19,10 +19,10 @@ const KEY = process.env.TRADING_BOT_KEY;
 const SECRET = process.env.TRADING_BOT_SECRET;
 
 // Buy limit threshold to stop buying.
-const LIMITBUY = parseFloat(process.env.LIMITBUY); 
+const LIMITBUY = parseFloat(process.env.LIMIT_BUY); 
 
 // Minimum of euros that should stay in account just in case it goes south.
-const EURO_IN_ACCOUNT_MINIMUM = parseFloat(process.env.EUROINACCOUNTMINIMUM); 
+const EURO_IN_ACCOUNT_MINIMUM = parseFloat(process.env.EURO_IN_ACCOUNT_MINIMUM); 
 
 const GDAX_URI = 'https://api.gdax.com';
 
@@ -34,10 +34,10 @@ const BITCOIN_TICKER = 'BTC';
 const SLEEP_TIME = 30000;
 
 //The seed is the amount of bitcoin that will be bought and sold continuously
-const SEED_BTC_AMOUNT = parseFloat(process.env.SEEDBTCAMOUNT);
+const SEED_BTC_AMOUNT = parseFloat(process.env.SEED_BTC_AMOUNT);
 
 //Minimum increase over the average price to allow a purchase of bitcoin
-const MINIMUM_PRICE_INCREMENT = parseFloat(process.env.MINIMUMPRICEINCREMENT);
+const MINIMUM_PRICE_INCREMENT = parseFloat(process.env.MINIMUM_PRICE_INCREMENT);
 
 //Profit percentage selling 1 bitcoin
 const PROFIT_PERCENTAGE = 0.5; 
