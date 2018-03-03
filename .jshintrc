@@ -1,0 +1,7 @@
+{
+    "globalstrict": true,
+    "devel": true,
+    "undef": true,
+    "unused": true,
+    "esversion": 6 
+  }
