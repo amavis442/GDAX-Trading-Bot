@@ -1,3 +1,7 @@
+"use strict";
+
+require('dotenv').config();
+
 /*
  ============================================================================
  Name        : GDAX Trading Bot
@@ -14,6 +18,12 @@ const PASSPHRASE = process.env.TRADING_BOT_PASSPHRASE;
 const KEY = process.env.TRADING_BOT_KEY;
 const SECRET = process.env.TRADING_BOT_SECRET;
 
+// Buy limit threshold to stop buying.
+const LIMITBUY = parseFloat(process.env.LIMITBUY); 
+
+// Minimum of euros that should stay in account just in case it goes south.
+const EURO_IN_ACCOUNT_MINIMUM = parseFloat(process.env.EUROINACCOUNTMINIMUM); 
+
 const GDAX_URI = 'https://api.gdax.com';
 
 const CURRENCY_PAIR = 'BTC-EUR';
@@ -24,10 +34,10 @@ const BITCOIN_TICKER = 'BTC';
 const SLEEP_TIME = 30000;
 
 //The seed is the amount of bitcoin that will be bought and sold continuously
-const SEED_BTC_AMOUNT = 0.01;
+const SEED_BTC_AMOUNT = parseFloat(process.env.SEEDBTCAMOUNT);
 
 //Minimum increase over the average price to allow a purchase of bitcoin
-const MINIMUM_PRICE_INCREMENT = 0.01;
+const MINIMUM_PRICE_INCREMENT = parseFloat(process.env.MINIMUMPRICEINCREMENT);
 
 //Profit percentage selling 1 bitcoin
 const PROFIT_PERCENTAGE = 0.5; 
@@ -194,15 +204,17 @@ function placeBuyOrder()
 {
     let priceIncrement = currentPrice - averagePrice;
 
-    if (priceIncrement>=MINIMUM_PRICE_INCREMENT)
+    if (priceIncrement>=MINIMUM_PRICE_INCREMENT && currentPrice < LIMITBUY && eurAvailable > EURO_IN_ACCOUNT_MINIMUM)
     {
         let buySize = SEED_BTC_AMOUNT;
 
         const buyParams = 
 	    {
             'type': 'market',
+            //'price': currentPrice.toFixed(2),
             'size': buySize.toFixed(8),
             'product_id': CURRENCY_PAIR,
+            //'post_only': true,
 		};
 
         console.log("\x1b[42m%s\x1b[0m", "[BUY ORDER] Price: " + currentPrice.toFixed(2) + " EUR, size: " + buySize.toFixed(8) + " BTC");
@@ -274,8 +286,13 @@ console.log("                               / /_/ / /_/ / /_ ");
 console.log("                              /_____/\\____/\\__/");
 
 console.log("\n\n\n\n                    \"The Revolution Will Be Decentralized\"");
+console.log("\n\n Config: SEED BTC: " + SEED_BTC_AMOUNT);
+console.log("\n\n Config: Limit Buy: " + LIMITBUY);
+console.log("\n\n Config: Amount of euros to leave alone: " + EURO_IN_ACCOUNT_MINIMUM);
+console.log("\n\n Config: Minimum price increment: " + MINIMUM_PRICE_INCREMENT);
 
 console.log("\n\n\n\nConnecting to GDAX in " + parseInt(SLEEP_TIME/1000) + " seconds ..."); 
+
 
 setInterval(() => 
 {
