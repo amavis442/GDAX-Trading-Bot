@@ -4,15 +4,21 @@
   "description": "Trading bot for GDAX exchange",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
   },
   "author": "Kenshiro",
   "license": "GPL-3.0",
   "dependencies": {
-    "gdax": "^0.5.1"
+    "dotenv": "^5.0.1",
+    "gdax": "^0.5.1",
+    "save": "^2.3.2"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/Kenshiro-28/GDAX-Trading-Bot.git"
+  },
+  "devDependencies": {
+    "jshint": "^2.9.5"
   }
 }
