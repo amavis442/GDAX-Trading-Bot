@@ -41,6 +41,8 @@ const SEED_BTC_AMOUNT = parseFloat(process.env.SEED_BTC_AMOUNT);
 
 //Minimum increase over the average price to allow a purchase of bitcoin
 const MINIMUM_PRICE_INCREMENT = parseFloat(process.env.MINIMUM_PRICE_INCREMENT);
+// When price goes up to fast, follow it carefully, else it will take a long time to get sold again
+const MAXIMUM_PRICE_INCREMENT = parseFloat(process.env.MAXIMUM_PRICE_INCREMENT);
 
 //Profit percentage selling 1 bitcoin
 const PROFIT_PERCENTAGE = parseFloat(process.env.PROFIT_PERCENTAGE);
@@ -130,6 +132,13 @@ const getBuyOrderCallBack = (error, response, data) => {
             sellPreviousPurchase();
         }
         buyOrderId = null;
+    } else {
+        let orderPrice = parseFloat(data.price);
+        let priceDifference = Math.abs(orderPrice - currentPrice);
+        if ((data.product_id === CURRENCY_PAIR) && (data.side === 'buy') && (priceDifference >= CANCEL_BUY_ORDER_THRESHOLD)) {
+            console.log("\n[INFO] Canceling buy order (order price: " + orderPrice.toFixed(2) + " EUR, current price: " + currentPrice.toFixed(2) + " EUR)");
+            authenticatedClient.cancelOrder(data.id, cancelOrderCallback);
+        }
     }
 }
 
@@ -146,17 +155,6 @@ const getOrdersCallback = (error, response, data) => {
         return console.log(error);
 
     if ((data != null) && (Symbol.iterator in Object(data))) {
-        for (let item of data) {
-            let orderPrice = parseFloat(item.price);
-            let priceDifference = Math.abs(orderPrice - currentPrice);
-
-            if ((item.product_id === CURRENCY_PAIR) && (item.side === 'buy') && (priceDifference >= CANCEL_BUY_ORDER_THRESHOLD)) {
-                console.log("\n[INFO] Canceling buy order (order price: " + orderPrice.toFixed(2) + " EUR, current price: " + currentPrice.toFixed(2) + " EUR)");
-                authenticatedClient.cancelOrder(item.id, cancelOrderCallback);
-                
-            }
-        }
-
         if (buyOrderId !== null) {
             authenticatedClient.getOrder(buyOrderId, getBuyOrderCallBack);
         }
@@ -242,7 +240,7 @@ const buyOrder = (orderType, buySize, currentPrice, currencyPair) => {
 function placeBuyOrder() {
     let priceIncrement = currentPrice - averagePrice;
 
-    if (priceIncrement >= MINIMUM_PRICE_INCREMENT && currentPrice < LIMIT_BUY && eurAvailable > EURO_IN_ACCOUNT_MINIMUM) {
+    if (priceIncrement >= MINIMUM_PRICE_INCREMENT && priceIncrement <= MAXIMUM_PRICE_INCREMENT && currentPrice < LIMIT_BUY && eurAvailable > EURO_IN_ACCOUNT_MINIMUM) {
         let buySize = SEED_BTC_AMOUNT;
 
         const buyParams = buyOrder(ORDERTYPE, buySize, currentPrice, CURRENCY_PAIR);
