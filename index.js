@@ -47,6 +47,8 @@ const PROFIT_PERCENTAGE = parseFloat(process.env.PROFIT_PERCENTAGE);
 
 const TAKER_FEE_PERCENTAGE = parseFloat(process.env.TAKER_FEE_PERCENTAGE);
 
+const SELLSEED = parseInt(process.env.SELLSEED);
+
 /*If the difference between the current price of bitcoin and the price of a
 limit buy order reaches this amount, the limit buy order will be canceled*/
 const CANCEL_BUY_ORDER_THRESHOLD = 0.01;
@@ -133,7 +135,7 @@ const getOrdersCallback = (error, response, data) => {
             placeBuyOrder();
         else if ((btcAvailable >= SEED_BTC_AMOUNT) && (lastBuyOrderPrice != null))
             sellPreviousPurchase();
-        else if ((btcAvailable >= SEED_BTC_AMOUNT) && (lastBuyOrderPrice == null) && (averagePrice != null))
+        else if ((btcAvailable >= SEED_BTC_AMOUNT) && (lastBuyOrderPrice == null) && (averagePrice != null) && SELLSEED)
             sellSeed();
 
         if (averagePrice === null)
