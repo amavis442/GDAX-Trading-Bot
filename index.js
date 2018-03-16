@@ -21,7 +21,7 @@ const SECRET = process.env.TRADING_BOT_SECRET;
 // Buy limit threshold to stop buying.
 const LIMIT_BUY = parseFloat(process.env.LIMIT_BUY);
 
-const WITH_TAKER_FEE = process.env.WITH_TAKER_FEE || false;
+const ORDERTYPE = String(process.env.ORDERTYPE);
 
 // Minimum of euros that should stay in account just in case it goes south.
 const EURO_IN_ACCOUNT_MINIMUM = parseFloat(process.env.EURO_IN_ACCOUNT_MINIMUM);
@@ -43,9 +43,9 @@ const SEED_BTC_AMOUNT = parseFloat(process.env.SEED_BTC_AMOUNT);
 const MINIMUM_PRICE_INCREMENT = parseFloat(process.env.MINIMUM_PRICE_INCREMENT);
 
 //Profit percentage selling 1 bitcoin
-const PROFIT_PERCENTAGE = 0.5;
+const PROFIT_PERCENTAGE = parseFloat(process.env.PROFIT_PERCENTAGE);
 
-const TAKER_FEE_PERCENTAGE = 0.25;
+const TAKER_FEE_PERCENTAGE = parseFloat(process.env.TAKER_FEE_PERCENTAGE);
 
 /*If the difference between the current price of bitcoin and the price of a
 limit buy order reaches this amount, the limit buy order will be canceled*/
@@ -185,6 +185,22 @@ const getAccountsCallback = (error, response, data) => {
 }
 
 //Functions
+const buyOrder = (orderType, buySize, currentPrice, currencyPair) => {
+    if (orderType === 'market' ) {
+        return {
+            'type': 'market',
+            'size': buySize.toFixed(8),
+            'product_id': currencyPair,
+        };
+    } else {
+        return {
+            'price': currentPrice.toFixed(2),
+            'size': buySize.toFixed(8),
+            'product_id': currencyPair,
+            'post_only': true,
+        };
+    }
+};
 
 function placeBuyOrder() {
     let priceIncrement = currentPrice - averagePrice;
@@ -192,22 +208,7 @@ function placeBuyOrder() {
     if (priceIncrement >= MINIMUM_PRICE_INCREMENT && currentPrice < LIMIT_BUY && eurAvailable > EURO_IN_ACCOUNT_MINIMUM) {
         let buySize = SEED_BTC_AMOUNT;
 
-        const buyParams = (WITH_TAKER_FEE, buysize, CURRENCY_PAIR) => {
-            if (WITH_TAKER_FEE) {
-                return {
-                    'type': 'market',
-                    'size': buySize.toFixed(8),
-                    'product_id': CURRENCY_PAIR,
-                };
-            } else {
-                return {
-                    'price': currentPrice.toFixed(2),
-                    'size': buySize.toFixed(8),
-                    'product_id': CURRENCY_PAIR,
-                    'post_only': true,
-                };
-            }
-        };
+        const buyParams = buyOrder(ORDERTYPE, buySize, currentPrice, CURRENCY_PAIR);
 
         console.log("\x1b[42m%s\x1b[0m", "[BUY ORDER] Price: " + currentPrice.toFixed(2) + " EUR, size: " + buySize.toFixed(8) + " BTC");
 
@@ -277,12 +278,14 @@ console.log("                              /_____/\\____/\\__/");
 
 console.log("\n\n\n\n                    \"The Revolution Will Be Decentralized\"");
 console.log("\n Config: SEED BTC: " + SEED_BTC_AMOUNT);
+console.log("\n Config: Order type: " + ORDERTYPE);
+console.log("\n Config: Profit Percentage: " + PROFIT_PERCENTAGE);
+console.log("\n Config: Taker fee Percentage (only when ordertype is market): " + TAKER_FEE_PERCENTAGE);
+
 console.log("\n Config: Limit Buy: " + LIMIT_BUY);
 console.log("\n Config: Amount of euros to leave alone: " + EURO_IN_ACCOUNT_MINIMUM);
 console.log("\n Config: Minimum price increment: " + MINIMUM_PRICE_INCREMENT);
-console.log("\n Config: With taker fee " + WITH_TAKER_FEE);
 console.log("\n\n\n\nConnecting to GDAX in " + parseInt(SLEEP_TIME / 1000) + " seconds ...");
-
 
 setInterval(() => {
     console.log('\n\n');
