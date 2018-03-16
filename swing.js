@@ -126,7 +126,7 @@ const getBuyOrderCallBack = (error, response, data) => {
     if (data.status === 'done') {
         console.log("\x1b[42m%s\x1b[0m", "[COMPLETE BUY ORDER] Price: " + Number(data.price).toFixed(2) + " EUR, size: " + Number(data.size).toFixed(8) + " BTC");
         if ((btcAvailable >= SEED_BTC_AMOUNT) && (lastBuyOrderPrice != null)) {
-            console.log('Place sell order for buyorderid: ' + data.id);
+            console.log('[INFO] Place sell order for buyorderid: ' + data.id);
             sellPreviousPurchase();
         }
         buyOrderId = null;
