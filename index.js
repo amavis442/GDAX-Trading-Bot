@@ -34,7 +34,7 @@ const EURO_TICKER = 'EUR';
 
 const BITCOIN_TICKER = 'BTC';
 
-const SLEEP_TIME = 30000;
+const SLEEP_TIME = parseInt(process.env.SLEEP_TIME);
 
 //The seed is the amount of bitcoin that will be bought and sold continuously
 const SEED_BTC_AMOUNT = parseFloat(process.env.SEED_BTC_AMOUNT);
@@ -51,7 +51,7 @@ const SELLSEED = parseInt(process.env.SELLSEED);
 
 /*If the difference between the current price of bitcoin and the price of a
 limit buy order reaches this amount, the limit buy order will be canceled*/
-const CANCEL_BUY_ORDER_THRESHOLD = 0.01;
+const CANCEL_BUY_ORDER_THRESHOLD = parseFloat(process.env.CANCEL_BUY_ORDER_THRESHOLD);
 
 let currentPrice = null;
 let averagePrice = null;
