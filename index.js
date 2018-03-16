@@ -284,6 +284,9 @@ console.log("\n Config: Order type: " + ORDERTYPE);
 console.log("\n Config: Profit Percentage: " + PROFIT_PERCENTAGE);
 console.log("\n Config: Taker fee Percentage (only when ordertype is market): " + TAKER_FEE_PERCENTAGE);
 
+console.log("\n Config: Cancel buy order treshold: " + CANCEL_BUY_ORDER_THRESHOLD);
+console.log("\n Config: SELLSEED (on/off): " + SELLSEED);
+
 console.log("\n Config: Limit Buy: " + LIMIT_BUY);
 console.log("\n Config: Amount of euros to leave alone: " + EURO_IN_ACCOUNT_MINIMUM);
 console.log("\n Config: Minimum price increment: " + MINIMUM_PRICE_INCREMENT);
