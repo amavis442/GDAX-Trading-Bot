@@ -133,11 +133,16 @@ const getBuyOrderCallBack = (error, response, data) => {
         }
         buyOrderId = null;
     } else {
-        let orderPrice = parseFloat(data.price);
-        let priceDifference = Math.abs(orderPrice - currentPrice);
-        if ((data.product_id === CURRENCY_PAIR) && (data.side === 'buy') && (priceDifference >= CANCEL_BUY_ORDER_THRESHOLD)) {
-            console.log("\n[INFO] Canceling buy order (order price: " + orderPrice.toFixed(2) + " EUR, current price: " + currentPrice.toFixed(2) + " EUR)");
-            authenticatedClient.cancelOrder(data.id, cancelOrderCallback);
+        if (data.status !== 'open' && data.status !== 'pending' && data.status !== 'done') {
+            // Manual deleted perhaps
+            buyOrderId = null;        
+        } else {
+            let orderPrice = parseFloat(data.price);
+            let priceDifference = Math.abs(orderPrice - currentPrice);
+            if ((data.product_id === CURRENCY_PAIR) && (data.side === 'buy') && (priceDifference >= CANCEL_BUY_ORDER_THRESHOLD)) {
+                console.log("\n[INFO] Canceling buy order (order price: " + orderPrice.toFixed(2) + " EUR, current price: " + currentPrice.toFixed(2) + " EUR)");
+                authenticatedClient.cancelOrder(data.id, cancelOrderCallback);
+            }
         }
     }
 }
@@ -147,6 +152,11 @@ const getSellOrderCallBack = (error, response, data) => {
     if (data.status === 'done') {
         console.log("\x1b[41m%s\x1b[0m", "[COMPLETE SELL ORDER] Price: " + Number(data.price).toFixed(2) + " EUR, size: " + Number(data.size).toFixed(8) + " BTC");
         sellOrderId = null;
+    }else {
+        if (data.status !== 'open' && data.status !== 'pending' && data.status !== 'done') {
+            // Manual deleted perhaps
+            sellOrderId = null;  
+        }
     }
 }
 
