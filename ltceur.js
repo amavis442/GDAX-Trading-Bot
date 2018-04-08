@@ -22,7 +22,7 @@ const EURO_TICKER = 'EUR';
 
 const BITCOIN_TICKER = 'LTC';
 
-const SLEEP_TIME = 10000; // 30 seconds
+const SLEEP_TIME = parseInt(process.env.SLEEP_TIME); // 30 seconds
 
 
 const BUYAT = parseFloat(process.env.BUYAT);
