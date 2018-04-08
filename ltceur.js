@@ -48,6 +48,13 @@ let estimatedProfit = 0;
 let authenticatedClient = null;
 let publicClient = null;
 
+// Telegram logger
+const telegramLogger = require('telegram-logger')
+const logger = telegramLogger({
+    token: process.env.TELEGRAMTOKEN,
+    chat_id: process.env.TELEGRAMCHATID,
+});
+
 //Callbacks
 
 const sellPreviousPurchaseCallback = (error, response, data) => {
@@ -60,6 +67,8 @@ const sellPreviousPurchaseCallback = (error, response, data) => {
         buyOrderId = null;
         sellOrderId = data.id;
         numberOfCyclesCompleted++;
+
+        
     }
 
     return console.log(data);
@@ -80,31 +89,47 @@ const buyOrderCallback = (error, response, data) => {
 
 // Checks if buy has been filled
 const getBuyOrderCallBack = (error, response, data) => {
-    console.log('[ORDER] Check status of buyorder: ' + data.id);
+    if (error)
+        return console.log(error);
+
+    if ((data != null)) {
+        console.log('[ORDER] Check status of buyorder: ' + data.id);
     
-    if (data.status === 'done') {
-        console.log("\x1b[42m%s\x1b[0m", "[COMPLETE BUY ORDER] Price: " + Number(data.price).toFixed(2) + " EUR, size: " + Number(data.size).toFixed(8) + " BTC");
-        if (ltcAvailable >= SEED_LTC_AMOUNT) { 
-            console.log('[INFO] Place sell order for buyorderid: ' + data.id);
-            sellPreviousPurchase();
-        }
-    } else {
-        if (data.status !== 'open' && data.status !== 'pending' && data.status !== 'done') {
-            // Manual deleted perhaps
-            buyOrderId = null;        
+        if (data.status === 'done') {
+            console.log("\x1b[42m%s\x1b[0m", "[COMPLETE BUY ORDER] Price: " + Number(data.price).toFixed(2) + " EUR, size: " + Number(data.size).toFixed(8) + " LTC");
+            if (ltcAvailable >= SEED_LTC_AMOUNT) { 
+                console.log('[INFO] Place sell order for buyorderid: ' + data.id);
+                sellPreviousPurchase();
+            }
+            logger('Bought ' + Number(data.size).toFixed(8) + ' LTC for ' + Number(data.price).toFixed(2))
+                .then(data => console.log(data))
+                .catch(err => console.error(err));
+        } else {
+            if (data.status !== 'open' && data.status !== 'pending' && data.status !== 'done') {
+                // Manual deleted perhaps
+                buyOrderId = null;        
+            }
         }
     }
 }
 
 const getSellOrderCallBack = (error, response, data) => {
-    console.log('[ORDER] Check status of sellorder: ' + data.id);
-    if (data.status === 'done') {
-        console.log("\x1b[41m%s\x1b[0m", "[COMPLETE SELL ORDER] Price: " + Number(data.price).toFixed(2) + " EUR, size: " + Number(data.size).toFixed(8) + " BTC");
-        sellOrderId = null;
-    }else {
-        if (data.status !== 'open' && data.status !== 'pending' && data.status !== 'done') {
-            // Manual deleted perhaps
-            sellOrderId = null;  
+    if (error)
+        return console.log(error);
+
+    if (data != null) {
+        console.log('[ORDER] Check status of sellorder: ' + data.id);
+        if (data.status === 'done') {
+            console.log("\x1b[41m%s\x1b[0m", "[COMPLETE SELL ORDER] Price: " + Number(data.price).toFixed(2) + " EUR, size: " + Number(data.size).toFixed(8) + " LTC");
+            sellOrderId = null;
+            logger('Sold ' + Number(data.size).toFixed(8) + ' LTC for ' + Number(data.price).toFixed(2) + '... Estimated profit' + estimatedProfit.toFixed(2))
+                .then(data => console.log(data))
+                .catch(err => console.error(err));
+        } else {
+            if (data.status !== 'open' && data.status !== 'pending' && data.status !== 'done') {
+                // Manual deleted perhaps
+                sellOrderId = null;  
+            }
         }
     }
 }
@@ -237,6 +262,10 @@ console.log("\n Config: Order type: " + ORDERTYPE);
 console.log("\n Config: Buy At: " + BUYAT.toFixed(2));
 console.log("\n Config: Sell At: " + SELLAT.toFixed(2));
 console.log("\n\n\n\nConnecting to GDAX in " + parseInt(SLEEP_TIME / 1000) + " seconds ...");
+
+logger('Starting LTC-EUR BOT')
+  .then(data => console.log(data))
+  .catch(err => console.error(err))
 
 setInterval(() => {
     console.log('\n\n');

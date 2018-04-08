@@ -12,7 +12,8 @@
   "dependencies": {
     "dotenv": "^5.0.1",
     "gdax": "^0.5.1",
-    "save": "^2.3.2"
+    "save": "^2.3.2",
+    "telegram-logger": "^1.0.0"
   },
   "repository": {
     "type": "git",
