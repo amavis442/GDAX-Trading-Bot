@@ -34,6 +34,7 @@ let breakeven = 0.0;
 let buyPrice = 0.0;
 let n = 0;
 let profitPerOrder = 0.0;
+let sizeOrders = 0.0;
 
 for (var i = 0; i < NUMBER;i++) {
     n = i + 1;
@@ -43,6 +44,7 @@ for (var i = 0; i < NUMBER;i++) {
     profit += profitPerOrder;
     //console.log('Profit: ' + parseFloat(profitPerOrder).toFixed(2));
     breakeven += parseFloat(buyPrice);
+    sizeOrders += parseFloat(SIZE);
 }
 
 //console.log('Break even total: ' + breakeven);
@@ -50,3 +52,4 @@ breakeven = (breakeven / NUMBER);
 console.log('Break even sellprice: ' + parseFloat(breakeven).toFixed(3));
 console.log('Profit at sellprice ' + SELLPRICE + '  = ' + parseFloat(profit).toFixed(2));
 console.log('Number of orders: ' + NUMBER);
+console.log('Ordersize: ' + parseFloat(sizeOrders).toFixed(8));
