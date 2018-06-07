@@ -66,7 +66,7 @@ const placeOrder = async () => {
     let currentPrice = 0.0;
     let orderSize = SIZE;
     for(i = 0;i < NUMBER; i++) {
-        currentPrice = PRICE + (i+1) * (INCREMENT / 100);
+        currentPrice = PRICE + i * (INCREMENT / 100);
         orderParams = order('limit', orderSize, currentPrice, CRYPTO_CURRENCY);
 
         console.log("\x1b[42m%s\x1b[0m", "[ORDER] Price: " + currentPrice.toFixed(2) + " EUR, size: " + orderSize.toFixed(8) + ' ' + CRYPTO_CURRENCY);
