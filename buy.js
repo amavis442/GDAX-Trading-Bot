@@ -47,10 +47,6 @@ if (!NUMBER && !LIMITPRICE){
     NUMBER = parseInt(Math.floor(AMOUNT / SIZE));
 }
 
-console.log('Number: ' + NUMBER);
-return;
-
-
 const sleep = (ms) => {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
