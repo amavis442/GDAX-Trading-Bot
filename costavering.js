@@ -9,6 +9,7 @@ let ops = stdio.getopt({
     'bottombuyprice': {key: 'b', args: 1, description: 'Bottom buy price'},
     'increment': {key: 'i', args: 1, mandatory: true, description: 'The increment in cents (5 = 5 cent increment)'},
     'sellprice': {key: 't', args: 1, mandatory: true, description: 'Price at which to sell'},
+    'amount': {key: 'a', args: 1, description: 'Size of crypto you wonna sell (You do not need to fill in number and topprice'},
 });
 
 let PRICE = parseFloat(ops.price);
@@ -19,11 +20,23 @@ let SELLPRICE = parseFloat(ops.sellprice);
 let BOTTOMPRICE = parseFloat(ops.bottombuyprice);
 let diffPrice = 0.0;
 let incrementInCents = 0;
+let AMOUNT = parseFloat(ops.amount);
 
-if (!NUMBER){
+if (!NUMBER && !AMOUNT && !BOTTOMPRICE){
+    console.log('Please fill in number of orders or the amount......');
+    return;
+}
+
+if (!NUMBER && BOTTOMPRICE){
     diffPrice = parseFloat((PRICE -BOTTOMPRICE) * 100).toFixed(2);
     NUMBER = parseInt(diffPrice / INCREMENT) + 1;
 }
+
+// Round down so we do not sell
+if (!NUMBER && !BOTTOMPRICE){
+    NUMBER = parseInt(Math.floor(AMOUNT / SIZE));
+}
+
 //console.log('DiffPrice: ' + diffPrice);
 
 //console.log('Number orders: ' + NUMBER);
