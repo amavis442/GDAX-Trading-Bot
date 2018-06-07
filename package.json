@@ -11,8 +11,9 @@
   "license": "GPL-3.0",
   "dependencies": {
     "dotenv": "^5.0.1",
-    "gdax": "^0.5.1",
+    "gdax": "^0.8.0",
     "save": "^2.3.2",
+    "stdio": "^0.2.7",
     "telegram-logger": "^1.0.0"
   },
   "repository": {
