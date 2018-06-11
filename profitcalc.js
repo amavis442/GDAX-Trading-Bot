@@ -35,7 +35,7 @@ if (CRYPTO_CURRENCY == 'BCH' || CRYPTO_CURRENCY == 'LTC' || CRYPTO_CURRENCY == '
 
 if (CRYPTO_CURRENCY == 'BTC') {
     fee = SIZE * BUY * 0.0025;
-    fee += SIZE * SELL * 0.003
+    fee += SIZE * SELL * 0.0025;
 }
 
 let delta = SELL - BUY;
