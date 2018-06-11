@@ -10,6 +10,8 @@ let ops = stdio.getopt({
     'size': { key: 'q', args: 1, description: 'Size' },
     'buy': { key: 'b', args: 1, mandatory: true, description: 'Buy price' },
     'sell': { key: 's', args: 1, mandatory: true, description: 'Sell price' },
+    'nofee': { description: 'Use fee in calc?' },
+    
 });
 
 let CRYPTO_CURRENCY = ops.cryptocurreny;
@@ -17,6 +19,8 @@ let AMOUNT = parseFloat(ops.amount);
 let BUY = parseFloat(ops.buy);
 let SELL = parseFloat(ops.sell);
 let QUANTITY = parseFloat(ops.size);
+let NOFEE = ops.nofee ? true : false;
+
 let fee = 0.0;
 let SIZE = 0.0;
 
@@ -29,13 +33,16 @@ if (AMOUNT) {
 
 if (CRYPTO_CURRENCY == 'BCH' || CRYPTO_CURRENCY == 'LTC' || CRYPTO_CURRENCY == 'ETH') {
     fee = SIZE * BUY * 0.003;
-    
     fee += SIZE * SELL * 0.003
 }
 
 if (CRYPTO_CURRENCY == 'BTC') {
     fee = SIZE * BUY * 0.0025;
     fee += SIZE * SELL * 0.0025;
+}
+
+if (NOFEE) {
+    fee = 0.0;
 }
 
 let delta = SELL - BUY;
