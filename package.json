@@ -12,6 +12,7 @@
   "dependencies": {
     "dotenv": "^5.0.1",
     "gdax": "^0.8.0",
+    "node-telegram-bot-api": "^0.30.0",
     "save": "^2.3.2",
     "stdio": "^0.2.7",
     "telegram-logger": "^1.0.0"

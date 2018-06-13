@@ -3,7 +3,18 @@
 require('dotenv').config();
 
 const GdaxModule = require('gdax');
-let stdio = require('stdio');
+const TelegramBot = require('node-telegram-bot-api');
+const stdio = require('stdio');
+
+const PASSPHRASE = process.env.TRADING_BOT_PASSPHRASE;
+const KEY = process.env.TRADING_BOT_KEY;
+const SECRET = process.env.TRADING_BOT_SECRET;
+const GDAX_URI = 'https://api.gdax.com';
+const TELEGRAMTOKEN = process.env.TELEGRAMTOKEN;
+const TELEGRAMCHATID = process.env.TELEGRAMCHATID;
+
+const bot = new TelegramBot(TELEGRAMTOKEN, {polling: true});
+
 let authenticatedClient = null;
 let publicClient = null;
 let orderParams = null;
@@ -15,7 +26,8 @@ let ops = stdio.getopt({
     'size': { key: 's', args: 1, mandatory: true, description: 'Size to buy per increment 0.1 ex. for 0.1 LTC' },
     'price': { key: 'p', args: 1, mandatory: true, description: 'Start price to calculate' },
     'spread': { key: 'f', args: 1, mandatory: true, description: 'Diff between sell and buy' },
-    'side': { key: 't', args: 1, mandatory: true, description: 'Side to start with buy or sell' }
+    'side': { key: 't', args: 1, mandatory: true, description: 'Side to start with buy or sell' },
+    'monitor': { description: 'Only monitor sells and buys' },
 });
 
 let CRYPTO_CURRENCY = ops.cryptocurreny + '-EUR';
@@ -23,6 +35,10 @@ let SIZE = parseFloat(ops.size);
 let PRICE = parseFloat(ops.price);
 let PROFIT = parseFloat(ops.spread);
 let SIDE = ops.side;
+let MONITORONLY = ops.monitor ? true: false;
+
+let profit = 0.0;
+let tradeProfit = 0.0;
 
 let currentOrder = {
     orderid: '',
@@ -32,10 +48,6 @@ let currentOrder = {
     size: 0.0
 }
 
-const PASSPHRASE = process.env.TRADING_BOT_PASSPHRASE;
-const KEY = process.env.TRADING_BOT_KEY;
-const SECRET = process.env.TRADING_BOT_SECRET;
-const GDAX_URI = 'https://api.gdax.com';
 
 //Functions
 const order = (orderType, orderSize, currentPrice, currencyPair) => {
@@ -129,7 +141,7 @@ const placeOrder = (side, price) => {
 }
 
 const init_ws_stream = () => {
-    gdax_ws = new GdaxModule.WebsocketClient([CRYPTO_CURRENCY], 'wss://ws-feed.gdax.com', {
+    gdax_ws = new GdaxModule.WebsocketClient(['BCH-EUR','BTC-EUR','ETH-EUR', 'LTC-EUR'], 'wss://ws-feed.gdax.com', {
         key: KEY,
         secret: SECRET,
         passphrase: PASSPHRASE,
@@ -178,22 +190,50 @@ const ws_reconnect = (ws, data) => {
     }, 10000)
 }
 
+const sendMessage = (error, response, data) => {
+    if (error) {
+        console.log(error)
+        return
+    }
+    console.log(data)
+    bot.sendMessage(TELEGRAMCHATID, `${data.done_at} :: _${data.side} ${data.product_id}_ *Filled* for ${data.filled_size}  type ${data.type}.`,{'parse_mode': 'Markdown'});
+}
+
 /**
  *
  */
 const process_ws_message = (data) => {
     console.log(data)
     
-    if (currentOrder.orderid != data.order_id) return
-
+    if (currentOrder.orderid != data.order_id) {
+        if (data.type == 'done' && data.reason == 'filled') {
+            authenticatedClient.getOrder(data.order_id, sendMessage)
+        }
+        if (data.type == 'done' && data.reason == 'canceled') {
+            bot.sendMessage(TELEGRAMCHATID, `${data.time} :: _${data.side} ${data.product_id}_ *Canceled* for ${data.remaining_size}.`,{'parse_mode': 'Markdown'});
+        }
+        return
+    }
+    
     switch (data.type) {
         case 'done': {
             switch (data.reason) {
                 case 'canceled':
                     currentOrder.status = data.reason;
                     currentOrder.orderid = '';
+                    currentOrder.price = 0.0;
+                    currentOrder.status = data.reason;
+                    bot.sendMessage(TELEGRAMCHATID, `${data.time} :: _${data.side} ${data.product_id}_ *Canceled* for ${currentOrder.price} with size ${data.remaining_size}.`,{'parse_mode': 'Markdown'});
                     break
                 case 'filled':
+                    if (currentOrder.side == 'sell') {
+                        tradeProfit = parseFloat(PROFIT * SIZE).toFixed(2);
+                        profit += tradeProfit;
+                        console.log('*******');
+                        console.log('Profit: ' + profit);
+                        console.log('*******');
+                        bot.sendMessage(TELEGRAMCHATID, `${data.time} :: _${data.side} ${data.product_id}_ *Filled* for ${currentOrder.price} with size ${data.size}. Orderprofit: ${tradeProfit}. Total profit: ${profit}`,{'parse_mode': 'Markdown'});
+                    }
                     currentOrder.status = data.reason;
                     publicClient.getProductTicker(CRYPTO_CURRENCY, getProductTickerCallback);
                     break
@@ -219,6 +259,14 @@ const process_ws_message = (data) => {
 publicClient = new GdaxModule.PublicClient(GDAX_URI);
 authenticatedClient = new GdaxModule.AuthenticatedClient(KEY, SECRET, PASSPHRASE, GDAX_URI);
 
-currentOrder.price = PRICE;
-placeOrder(SIDE, PRICE);
-init_ws_stream();
+
+function main() {
+    bot.sendMessage(TELEGRAMCHATID,'*Klaar om te handelen*',{'parse_mode': 'Markdown'});
+    currentOrder.price = PRICE;
+    if (!MONITORONLY) {
+        placeOrder(SIDE, PRICE);
+    }
+    init_ws_stream();
+}
+    
+main();
